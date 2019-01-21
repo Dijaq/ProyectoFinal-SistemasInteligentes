@@ -178,6 +178,7 @@ def main():  # noqa: D103
     frame_history = 4
     batch_size = 32
     input_shape = (input_size, input_size, frame_history)
+    #input_shape = (None, 84, 84, 4)
     # mem_size = 1000000
     mem_size = args.mem_size  # unable to initialize 1M memory, same as achal
     gamma = 0.99
@@ -241,8 +242,8 @@ def main():  # noqa: D103
       # testing_env = copy.deepcopy(env)
       D.evaluate(env, 1, 0, max_episode_length=1e4,
                  render=True, render_path=args.render_path)
-    #else:
-      #D.fit(env, args.max_iters)
+    else:
+      D.fit(env, args.max_iters)
 
 if __name__ == '__main__':
     main()

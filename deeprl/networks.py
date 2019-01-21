@@ -5,6 +5,8 @@ from keras.layers import Activation, Input
 from keras.layers.convolutional import Conv2D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.merge import Add
+from keras.layers import TimeDistributed
+from keras.layers import LSTM
 
 def get_model(model_name, *args):
   if model_name == 'linear':
@@ -19,6 +21,8 @@ def get_model(model_name, *args):
     return convnet_bn(*args)
   elif model_name == 'dueling_convnet':
     return dueling_convnet(*args)
+  elif model_name == 'drqn':
+    return drqn(*args)   
   else:
     raise ValueError()
 
@@ -103,4 +107,30 @@ def dueling_convnet(input_shape, num_actions):
   model = Model(
     inputs=inputs,
     outputs=final)
+  return model
+
+def drqn(input_shape, num_actions):
+
+  #inputs = Input(shape=input_shape)
+  #input_shape = (None, 84, 84, 4)
+  model = Sequential()
+  #model.add(TimeDistributed(Conv2D(32, (8,8), strides=(4, 4),
+  #          activation='relu'))(inputs))
+  model.add(TimeDistributed(Conv2D(32, (8,8), strides=(4, 4),
+            activation='relu'), input_shape=input_shape))
+  model.add(TimeDistributed(Conv2D(64, (4,4), strides=(2, 2),
+            activation='relu')))
+  model.add(TimeDistributed(Conv2D(64, (3,3), strides=(1, 1),
+            activation='relu')))
+  model.add(TimeDistributed(Flatten()))
+
+  # Use all traces for training
+  #model.add(LSTM(512, return_sequences=True,  activation='tanh'))
+  #model.add(TimeDistributed(Dense(output_dim=action_size, activation='linear')))
+
+  # Use last trace for training
+  #model.add(LSTM(512,  activation='tanh'))
+  model.add(LSTM(512,  activation='relu'))
+  model.add(Dense(num_actions, activation='linear'))
+
   return model

@@ -137,6 +137,9 @@ class DQNAgent:
           preproc = self.preprocessor
         if network is None:
           network = self.q_network
+
+  #     print("------------", state.shape)
+  #      state.reshape( 1, 84, 84, 1 )
         return self.q_network.predict(np.expand_dims(
           preproc.process_state_for_network(state), 0))
 
@@ -367,7 +370,7 @@ class DQNAgent:
           }
           while not is_terminal and \
             stats['episode_length'] < max_episode_length:
-            env.render()
+            #env.render()
             nextstate = preproc.process_state_for_memory(nextstate)
             q_values = self.calc_q_values(nextstate, preproc)
             action = pol.select_action(q_values=q_values)
