@@ -24,9 +24,9 @@ class DRQNAgent:
 
     def __init__(self, action_size):
 
-        self.render = False
+        self.render = True
 
-        self.load_model = False
+        self.load_model = True
 
         # 행동의 크기 정의
 
@@ -51,13 +51,10 @@ class DRQNAgent:
 
         self.discount_factor = 0.99
 
-        # 리플레이 메모리, 최대 크기 400000
-
         self.memory = deque(maxlen=400000)
 
         self.no_op_steps = 30
 
-        # 모델과 타겟모델을 생성하고 타겟모델 초기화 및 gpu에 모델 할당
         
         self.model = self.build_model()
         #self.model = multi_gpu_model(self.model, gpus = 4)
@@ -68,9 +65,6 @@ class DRQNAgent:
         
         self.optimizer = self.optimizer()
 
-       
-
-        # 텐서보드 설정
 
         self.sess = tf.InteractiveSession()
 
@@ -90,20 +84,15 @@ class DRQNAgent:
  
 
         if self.load_model:
-
-            self.model.load_weights("drqn_data/enduro-v0/enduro_drqn15.h5")
+            #self.model.load_weights("drqn_data/enduro-v0/enduro_drqn15.h5")
+            self.model.load_weights("drqn_data/enduro-v0/pong_V4_drqn_110.h5")
 
  
-
-    # 샘플 <s, a, r, s'>을 리플레이 메모리에 저장
 
     def append_sample(self, history, action, reward, next_history, dead):
 
         self.memory.append((history, action, reward, next_history, dead))
 
-          
-
-    # Huber Loss를 이용하기 위해 최적화 함수를 직접 정의
 
     def optimizer(self):
 
@@ -145,8 +134,6 @@ class DRQNAgent:
 
  
 
-    # 상태가 입력, 큐함수가 출력인 인공신경망 생성
-
     def build_model(self):
 
         model = Sequential()
@@ -175,17 +162,12 @@ class DRQNAgent:
 
  
 
- 
-
-    # 타겟 모델을 모델의 가중치로 업데이트
 
     def update_target_model(self):
 
         self.target_model.set_weights(self.model.get_weights())
 
  
-
-    # 입실론 탐욕 정책으로 행동 선택
 
     def get_action(self, history):
 
@@ -202,8 +184,6 @@ class DRQNAgent:
             return np.argmax(q_value[0])
 
  
-
-    # 리플레이 메모리에서 무작위로 추출한 배치로 모델 학습
 
     def train_model(self):
         if self.epsilon > self.epsilon_end:
@@ -242,8 +222,6 @@ class DRQNAgent:
 
  
 
- 
-
         for i in range(self.batch_size):
 
             if dead[i]:
@@ -259,8 +237,6 @@ class DRQNAgent:
         self.avg_loss += loss[0]
 
  
-
-    # 각 에피소드 당 학습 정보를 기록
 
     def setup_summary(self):
 
@@ -316,7 +292,7 @@ def pre_processing(observe):
 
 if __name__ == "__main__":
 
-    env = gym.make('Enduro-v0')
+    env = gym.make('Pong-v0')
     agent = DRQNAgent(action_size=3)
     scores, episodes, global_step = [], [], 0
 
@@ -324,6 +300,8 @@ if __name__ == "__main__":
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     set_session(tf.Session(config=config))
+
+#    agent.model.load_weights("drqn_data/enduro-v0/enduro_drqn15.h5")
 
 
     for e in range(EPISODES):
@@ -361,11 +339,8 @@ if __name__ == "__main__":
             step += 1
  
 
-            # 바로 전 4개의 상태로 행동을 선택
-
             action = agent.get_action(history)
 
-            # 1: 정지, 2: 왼쪽, 3: 오른쪽
 
             if action == 0:
 
@@ -462,8 +437,8 @@ if __name__ == "__main__":
 
  
 
-                if e%50 == 0:
-                    print("episode:", e, "  score:", score, "  memory length:",
+                
+                print("episode:", e, "  score:", score, "  memory length:",
 
                      len(agent.memory), "  epsilon:", agent.epsilon,
 
@@ -477,5 +452,5 @@ if __name__ == "__main__":
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
 
-        if e % 500 == 0:
-            agent.model.save_weights("drqn_data/enduro-v0/enduro_drqn15.h5")
+        if e % 100 == 0:
+            agent.model.save_weights("drqn_data/enduro-v0/Pong_drqn15.h5")

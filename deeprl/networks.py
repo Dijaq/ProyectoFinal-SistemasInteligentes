@@ -74,6 +74,7 @@ def simpler_convnet(input_shape, num_actions):
   model.add(Dense(num_actions, activation=None))
   return model
 
+#Use in the article DQN
 def nature_convnet(input_shape, num_actions):
   model = Sequential()
   model.add(Conv2D(32, 8, strides=(4, 4),
