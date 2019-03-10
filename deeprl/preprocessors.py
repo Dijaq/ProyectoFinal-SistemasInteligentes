@@ -2,6 +2,7 @@
 
 import numpy as np
 from PIL import Image
+from PIL import ImageChops
 
 from deeprl.core import Preprocessor
 
@@ -87,6 +88,7 @@ class AtariPreprocessor(Preprocessor):
         self.resize_size = (110, 84)
         self.std_img = std_img
         self.ITER = 1
+        self.L_IMAGE = Image.new('L', (160, 210))
 
 
     def process_state_for_memory(self, state):
@@ -100,10 +102,41 @@ class AtariPreprocessor(Preprocessor):
         image conversions.
         """
         #print("---->>>>>",state.shape)
-       
         I = Image.fromarray(state, 'RGB')
+
+        A = I
+        if(self.ITER == 1):
+          self.L_IMAGE = A
+          #self.L_IMAGE = self.L_IMAGE.convert('R')
+
+        if(self.ITER < 500):
+
+          #print("----A", A.size)
+          #print("----L_IMAGE", self.L_IMAGE.size)
+
+          L = A # save images
+          A = ImageChops.subtract(A, self.L_IMAGE)
+          #A = ImageChops.difference(A, self.L_IMAGE)
+          #A = A - self.L_IMAGE
+          #A = A.convert('L')
+
+          #A = abs(A-self.L_IMAGE)
+
+          #datos_img1 = A.getdata()
+          #datos_prev_img = self.L_IMAGE.getdata()
+          #difference = [abs(datos_img1[x]-datos_prev_img[x]) for x in range(len(datos_img1))]
+
+          #new_image = Image.new('L', (160, 210))
+          #new_image.putdata(difference)
+
+          #A = new_image
+
+          #A = A - self.L_IMAGE
+          #A = A.resize((self.new_size, self.new_size), Image.ANTIALIAS)
+          A.save("save_images/pingpong_"+str(self.ITER)+".png")
+          self.L_IMAGE = L
+
         I = I.convert('L')  # to gray
-        I.save("save_images/pingpong_"+str(self.ITER)+".png")
         I = I.resize((self.new_size, self.new_size), Image.ANTIALIAS)
         self.ITER = self.ITER+1
         # following are not done in the nature paper, so ignoring all that.
