@@ -1,5 +1,5 @@
 all: 
-	python3 dqn_atari.py --gpu 0 --env Breakout-v0 --model dueling_convnet --max_iters 1000100
+	python3 dqn_atari.py --gpu 0 --env Breakout-v0 --model convnet --max_iters 1000100
 exec:
 	python3 dqn_atari.py --gpu 0 --env Enduro-v0 -v --checkpoint atari-v0/053_Enduro-v0/Enduro-v0_run53_iter5000000.h5 --final_eval --model convnet
 
