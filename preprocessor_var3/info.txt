@@ -1,0 +1,1 @@
+This method, load by default a Background RGB image for the scenario, and for all the frames, calculate the difference between the actual frame and the initial frame.

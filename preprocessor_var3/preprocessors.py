@@ -89,7 +89,8 @@ class AtariPreprocessor(Preprocessor):
         self.resize_size = (110, 84)
         self.std_img = std_img
         self.ITER = 1
-        self.L_IMAGE = Image.new('L', (160, 210))
+        #self.L_IMAGE = Image.new('L', (160, 210))
+        self.L_IMAGE = Image.open('pingpong_init.png')
 
 
     def process_state_for_memory(self, state):
@@ -105,22 +106,22 @@ class AtariPreprocessor(Preprocessor):
         #print("---->>>>>",state.shape)
         I = Image.fromarray(state, 'RGB')
 
-        A = I
-        if(self.ITER == 1):
-          self.L_IMAGE = Image.open('pingpong_init.png')
+        #A = I
+        #if(self.ITER == 1):
+          #self.L_IMAGE = Image.open('pingpong_init.png')
           #self.L_IMAGE = self.L_IMAGE.convert('R')
 
-        if(self.ITER < 100):
+        #if(self.ITER < 100):
           
 
           #print("----A", A.size)
           #print("----L_IMAGE", self.L_IMAGE.size)
 
-          L = A # save images
-          A = ImageChops.subtract(A, self.L_IMAGE)
+          #L = A # save images
+          #A = ImageChops.subtract(A, self.L_IMAGE)
 
-          A = A.filter(ImageFilter.MaxFilter(5))
-          A = A.resize((self.new_size, self.new_size), Image.ANTIALIAS)
+          #A = A.filter(ImageFilter.MaxFilter(5))
+          #A = A.resize((self.new_size, self.new_size), Image.ANTIALIAS)
           #A = ImageChops.difference(A, self.L_IMAGE)
           #A = A - self.L_IMAGE
           #A = A.convert('L')
@@ -138,9 +139,11 @@ class AtariPreprocessor(Preprocessor):
 
           #A = A - self.L_IMAGE
           #A = A.resize((self.new_size, self.new_size), Image.ANTIALIAS)
-          A.save("save_images/pingpong_"+str(self.ITER)+".png")
+          #A.save("save_images/pingpong_"+str(self.ITER)+".png")
           #self.L_IMAGE = L
 
+        I = ImageChops.subtract(A, self.L_IMAGE)
+        I = I.filter(ImageFilter.MaxFilter(5))
         I = I.convert('L')  # to gray
         I = I.resize((self.new_size, self.new_size), Image.ANTIALIAS)
         self.ITER = self.ITER+1

@@ -1,0 +1,2 @@
+This preprocessor use the difference between the actual frame and the last frame, 
+this difference apply a "dilation" because the vartiational pixels are too little.
