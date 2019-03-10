@@ -5,6 +5,7 @@ from PIL import Image
 
 from deeprl.core import Preprocessor
 
+ITERATION = 0
 
 class HistoryPreprocessor(Preprocessor):
     """Keeps the last k states.
@@ -25,7 +26,7 @@ class HistoryPreprocessor(Preprocessor):
     def __init__(self, history_length=1):
       self.history = np.zeros((84, 84, history_length))
       self.history_length = history_length
-
+     
     def process_state_for_memory(self, state):
       """You only want history when you're deciding the current action to take."""
       # push this frame to history list
@@ -85,6 +86,8 @@ class AtariPreprocessor(Preprocessor):
         self.new_size = new_size
         self.resize_size = (110, 84)
         self.std_img = std_img
+        self.ITER = 1
+
 
     def process_state_for_memory(self, state):
         """Scale, convert to greyscale and store as uint8.
@@ -96,9 +99,13 @@ class AtariPreprocessor(Preprocessor):
         We recommend using the Python Image Library (PIL) to do the
         image conversions.
         """
+        #print("---->>>>>",state.shape)
+       
         I = Image.fromarray(state, 'RGB')
         I = I.convert('L')  # to gray
+        I.save("save_images/pingpong_"+str(self.ITER)+".png")
         I = I.resize((self.new_size, self.new_size), Image.ANTIALIAS)
+        self.ITER = self.ITER+1
         # following are not done in the nature paper, so ignoring all that.
         # I = I.resize(self.resize_size)
         # width, height = I.size   # Get dimensions

@@ -22,8 +22,6 @@ NO_OP_STEPS = 30  # for these many steps, do nothing in each episode
 _LEARNING_TYPE_NORMAL = 0
 _LEARNING_TYPE_DOUBLE = 1
 
-game = "Pong-v0";
-
 """Main DQN agent."""
 class DQNAgent:
     """Class implementing DQN.
@@ -140,7 +138,7 @@ class DQNAgent:
         if network is None:
           network = self.q_network
 
-  #      print("------------", state.shape)
+  #     print("------------", state.shape)
   #      state.reshape( 1, 84, 84, 1 )
         return self.q_network.predict(np.expand_dims(
           preproc.process_state_for_network(state), 0))
@@ -189,27 +187,15 @@ class DQNAgent:
           # target_batch[i, ...] = cur_q_values[i, ...]
           _, action, reward, _, is_terminal = samples[i]
           if is_terminal:
-            if game != 'Pong-v0':
-              target_batch[i, action] = reward
-            else:
-              target_batch[i, action] = reward+21
+            target_batch[i, action] = reward
           else:
             if self.learning_type == _LEARNING_TYPE_DOUBLE:
               selected_action = np.argmax(nextstate_q_values_live_network[i].flatten())
-              
-              if game != 'Pong-v0':
-                target_batch[i, action] = reward + self.gamma * \
-                    nextstate_q_values[i, selected_action]
-              else:
-                target_batch[i, action] = reward+21 + self.gamma * \
-                    nextstate_q_values[i, selected_action]
+              target_batch[i, action] = reward + self.gamma * \
+                  nextstate_q_values[i, selected_action]
             else:
-              if game != 'Pong-v0':
-                target_batch[i, action] = reward + self.gamma * np.max(
-                  nextstate_q_values[i])
-              else:
-                target_batch[i, action] = reward + self.gamma * np.max(
-                  nextstate_q_values[i])
+              target_batch[i, action] = reward + self.gamma * np.max(
+                nextstate_q_values[i])
         self.training_reward_seen += sum([el[2] for el in samples])
         if itr % PRINT_AFTER_ITER == 0:
           # add image summary
@@ -320,11 +306,7 @@ class DQNAgent:
               dont_reset = True
             is_terminal = True
         # enduro seems to give (-) rewards on hitting the sides... (check?)
-        if game != 'Pong-v0':
-          reward = self.preprocessor.process_reward(reward)
-        else:
-          reward = self.preprocessor.process_reward(reward+21)
-
+        reward = self.preprocessor.process_reward(reward)
         nextstate = self.preprocessor.process_state_for_memory(nextstate)
         self.memory.append(env_current_state, action,
                            reward, nextstate, is_terminal)
@@ -338,7 +320,6 @@ class DQNAgent:
     def save(self, itr):
         filename = "%s/%s_run%d_iter%d.h5" % (self.checkpoint_dir, self.env_name, self.experiment_id, itr)
         self.q_network.save(filename)
-        #!cp {filename} '../gdrive/My\ Drive/data/dcgan/mnist/save/breakout-v0/'
 
     def load(self, filename):
         # self.q_network = load_model(filename)
@@ -389,7 +370,7 @@ class DQNAgent:
           }
           while not is_terminal and \
             stats['episode_length'] < max_episode_length:
-            #env.render()
+            env.render()
             nextstate = preproc.process_state_for_memory(nextstate)
             q_values = self.calc_q_values(nextstate, preproc)
             action = pol.select_action(q_values=q_values)
@@ -417,16 +398,6 @@ class DQNAgent:
               simple_value=final_stats['mean_' + key])]),
             global_step=itr)
         print('Evaluation result: {}'.format(final_stats))
-        f= open("datos.txt","a")
-        w = str((np.mean(all_rewards)))
-        std = str((np.std(all_rewards)))
-        f.write("\n")
-        f.write(w)
-        f.write(" ")
-        f.write(std)
-        f.close() 
-        #!echo {str(final_stats)} >> '../gdrive/My\ Drive/data/dcgan/mnist/save/datos.txt'
-
 
     def run_no_op_steps(self, env):
       for _ in range(NO_OP_STEPS-1):
