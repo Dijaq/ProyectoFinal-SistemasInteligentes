@@ -142,11 +142,11 @@ class AtariPreprocessor(Preprocessor):
           #A.save("save_images/pingpong_"+str(self.ITER)+".png")
           #self.L_IMAGE = L
 
-        I = ImageChops.subtract(A, self.L_IMAGE)
+        I = ImageChops.subtract(I, self.L_IMAGE)
         I = I.filter(ImageFilter.MaxFilter(5))
         I = I.convert('L')  # to gray
         I = I.resize((self.new_size, self.new_size), Image.ANTIALIAS)
-        self.ITER = self.ITER+1
+        #self.ITER = self.ITER+1
         # following are not done in the nature paper, so ignoring all that.
         # I = I.resize(self.resize_size)
         # width, height = I.size   # Get dimensions
